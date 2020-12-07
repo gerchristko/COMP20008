@@ -1,0 +1,27 @@
+• Comparison
+For comparison, I used functions from both the textdistance and fuzzywuzzy libraries, specifically the Levenshtein 
+normalised distance and the Jaro-Winkler distance from the text distance library and the ratio, partial_ratio, 
+token_sort_ration, and the token_set_ratio from the fuzzywuzzy library. I set 7 numerical conditions, in which if 
+a pair satisfies any of these conditions, they will be considered a matching pair. If there are multiple matching 
+pairs for single items, the pair with the highest Jaro-Winkler score will be chosen as the only matching pair for 
+that item.
+
+• Comparison performance
+The conditions I used resulted in 146 matches. Out of those 146, 128 are actual matches and the rest are false 
+positives. That gives me a recall of 0.853 and a precision of 0.877. Some room for improvements can be made in 
+the functions and conditions. From the textdistance library, I only used edit-based algorithms. Perhaps other types 
+of algorithm, such as some token-based algorithm can be used also.
+
+• Blocking
+I chose to block every item based on their manufacturer/brand because I came to the conclusion that almost all product 
+will have at least 1 brand associated with it. The buy.csv file gave us a column for manufacturer, which is not in abt.csv. 
+Luckily, we are given the luxury of brand names as the first word of each product (almost all). So from abt.csv, I took the 
+first word of each name and use it as a manufacturer. An assumption I made is that no two manufacturer can have the same 
+letter formation with different capitalisation, i.e Samsung and SAMSUNG are considered the same. Another assumption is 
+that all manufacturer are one-worded, so an Aston Martin would only be recorded as Aston for both abt and buy.
+
+• Blocking performance
+This blocking method uses many blocks, so that runtime of comparison would be quite efficient. It is also very accurate 
+if all the assumptions are true, mainly the manufacturer in the first word assumption. It is accurate because the manufacturer 
+name contains no subjectivity in it compared to blocking based on product category. It could be improved by finding a better 
+way to satisfy all the assumptions.

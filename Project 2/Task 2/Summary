@@ -1,0 +1,59 @@
+ • 2A Summary
+Starting with the descriptives, for each algorithms, decision tree, 3NN, and 7NN, they each have accuracies of 
+0.709, 0,673, and 0.727 respectively. I can say that for this attempt, the 7NN algorithm performed better than 
+the k-nearest neighbour algorithm for value k = 3 and decision tree. As for the process, I started with merging 
+the 2 dataframes (csv) from life.csv and world.csv by inner joining them on life[‘Country code’] == world[‘Country code’]. 
+Then all the countries that are not recorded in the life dataframe will have a np.nan value in the merged dataframe. 
+After using the dropna() method, the remaining dataframe (from here on referred to as the join dataframe) now consisted 
+only of intersecting countries in both csv files. The join dataframe, was then split for training and testing, where 
+30% of the data was allocated for testing. I then used median imputation on the training set, then using the same median 
+to impute to the testing set. The data was then standardised to turn the datasets mean and variance into μ = 0 and σ = 1. 
+These are all the steps to prepare the data. Finally, the data is fit into each algorithms. The results deemed the 7NN as 
+the best performing algorithm.
+
+• 2b Summary
+The 3 methods used in this section, feature engineering, PCA, and first four features generate accuracies of 0.745, 0.691, 
+and 0.618 respectively. Similar to task 2a, I started by creating a join dataframe identical to the one in task 2a, then 
+performed median imputation. For feature engineering. I first use created term pairs which is the product of each pairwise 
+features. Mathematically, I verified my code by calculating the number of new features compared to 20C2, which is (20!)÷(18!)(2!)=190. 
+For the final feature, I used k-means clustering with k = 2 on the original 20 features. To select the best 4 features, I 
+used MI on the training data (test_size = 0.3), standardise it, then fit the 4 selected features to the 3NN algorithm. For 
+PCA. I used the world data which is imputed from the median of all the data (not the train data). I started by getting the 
+covariance matrix of the original 20 features. From there, using numpy.linalg.eig(), I obtained the eigenvalues and eigenvectors 
+of the covariance matrix. Because we only require the first four principal components, I took the 4 eigenvectors with the four 
+highest corresponding eigenvalues. To obtain the final dataset, I multiplied the inverse of the eigenvectors by the inverse 
+of the original dataset. With the same procedure as before, I split the data (test_size = 0.3), standardise it, then fit it 
+to the 3NN algorithm. For first four features. I directly use the split data (same specification), then from there hard coded 
+the name of the first four feature into a new x_train and x_test set. I proceed by standardising it, then fit it into the 3NN 
+algorithm.
+
+ • K-cluster method
+For the k-means clustering, I used the elbow method to determine the appropriate number of clusters. For every possible number 
+of clusters, I plot the inertia of each using kmeans.inertia_ where kmeans is the algorithm for k-means clustering. The inertias 
+are then plotted in ‘task2bgraph1.png’. From the graph, I determine the elbow was in k = 2, hence the number of clusters I used 
+in this part.
+
+• 4 feature method
+I used the SelectKBest library from sklearn. The function I used is the mutual_info_classif which is mutual information on discrete 
+target. Because our predictor features are all numerical (k-means clustering uses integers as labels), I opted not to use χ2. After 
+I obtained the columns that are considered the best, I reduce them to the first 5 rows. I then compare the columns with the first 5 
+rows of the dataframe to figure out which feature is selected. An assumption made here is that if somehow there are 2 features with 
+the exact same entry in their first 5 rows, the code will enter both as a selected feature causing 5 features to be selected. I 
+decided that the probability of such phenomena to occur will be very low that the threat is negligible.
+
+• Best results
+In terms of accuracy, I got a 0.745 result for feature engineering and 0.691 for PCA. Understandably, the first four feature earned 
+the lowest accuracy of 0.618, as the features are arbitrary random selection which could also earn the highest accuracy in other settings. 
+The scores for the other 2 are better, but still quite low. For feature engineering, it could be because the 4 highest MI scores does 
+not actually show predictive qualities. As for PCA, the method was more popular for dimensionality reduction and not accuracy. Because 
+the resulting datasets are just linear combinations of the original dataset, there should not be any intuitive reasons why the accuracy 
+should improve by this method.
+
+• Other techniques
+The most obvious method to increase accuracy is to increase the data, but since the number of country is finite, there are only ≈195 
+countries in the world, so the most data we could get for this setting is as follows. Another method we could use is different classifier 
+algorithms, such as SVC or Naive Bayes classifier. For even better accuracy, we could use ensemble learning, but should beware of overfitting.
+
+• Reliability
+In both task 2a and 2b, the highest classification score was 0.745 from the decision tree classifier. I think that this sort of accuracy in 
+still unreliable. Perhaps with more data or better classifier algorithm, the reliability could improve.

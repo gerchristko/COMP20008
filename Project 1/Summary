@@ -1,0 +1,102 @@
+Gerry Christian Ongko - 1094251
+COMP20008 Elements of Data Processing Project 1 Task 6
+
+1. Crawling Method and Task 1 Summary
+The package used for HTML parsing is bs4. To keep tab of the pages visited, there is a to_visit list and a visited list. 
+Since every page only have one next link, the to_visit list is not really necessary and is just my preference. 
+The visited list keeps tab of all visited website and since the website we are crawling is circular, in a sense 
+that if we keep going to the next link, we will one day end up in the first article again. With that logic, 
+if the current page the crawler is in right now exist in the visited list, the program will stop. This crawling 
+method only works for 1 link per page and circular structures. For specifics, in task 1, to find the headline of 
+each article, I used BeautifulSoup to find all div tags with id ‘headline’ and for the url, I looked for p tags 
+with id ‘nextLink’ and obtained the HTML in this order p.a[‘href’].
+
+Because Python has no do-while loop, such as in C/C++, to avoid code redundancies, I put the first article, which 
+is ‘Hodg001.html’ as the first seed item. But instead of scraping the data from this page directly, I started the 
+loop and go to the next page immediately and scrape the data from the first article last. This is reflected in ‘task1.csv’, 
+where the article ‘Hodgson shoulders England blame’ is in the last row of the csv file. This is also subsequently seen 
+is ‘task2.csv’. The output of part 1 shows 147 articles with their URL and headline, which is exactly the number of 
+articles in the website, indicating that for this task, no article has incomplete data. To write in the csv, I used the csv 
+library. Specifically, csv.writer() method.
+
+2. Scraping, Regex, and Task 2 Summary
+Firstly, I tokenise every article and produce a wordlist list where all punctuations are removed using the isalnum() method 
+and produce another list team_names for every team name in ‘rugby.json’. Then, to obtain the first team name in an article, 
+I used double iterations, where to make sure the team name recorded is the first occurrence, I iterate through wordlist first 
+and for every word in the wordlist, I iterate through the team_names. Consideration is also made for countries up to three 
+words, such as ‘Papua New Guinea’ or ‘Bosnia and Herzegovina’. However, for countries such with 4 words such as ‘United States 
+of America’,the code can’t accomodate this. Another assumption I made is that a team name can not have punctuations. So team 
+names such as ‘Côte d’Ivoire’, or ‘Timor-Leste’, will not be accomodated. Also since the web contains news article, I assume 
+that they will be written in appropriate capitalisations. Since the first team name in rugby.json is ‘England’, my code will 
+not accomodate ‘england’ or ‘ENGLAND’. If the first team is found, the loop will break and proceed to find the first score 
+using another method. For the score, instead of using the tokenise version, I used the initial raw string. I used regex with 
+the pattern r’\s[0-9][0-9]?[0-9]?-[0-9][0-9]?[0-9]?\s’. This pattern accommodates up to 3 digits of score, but only scores 
+that are independent, meaning that only the score is present after the first space and before the last space (eg. Not accepting 
+“23-57” or word23-57 or 23-57word. The program will only accept this form (space)(score)-(score)(space), then using string indexing 
+to get the correct format). In the case where only 1 score is found, the program will proceed using that score. But in the case 
+where more than 1 is found, I find the largest by summing the two score. The largest sum will be recorded. The output obtained 
+from task 2 is a csv file with 61 entries. Which means that out of 147 initial article, only 61 of them have both team name and 
+score in their headline or article. The other 86 are missing either a team name, a score, or both. In the ‘rugby.json’ file given 
+in canvas, all 7 teams have been mentioned in at least 1 article.
+
+3. Plots analysis and Task 4 & 5 Summary
+{Chart will appear when you run script.py}
+Above are ‘task4.png’ and ‘task5.png’ respectively. For task 4, I opted to use a bar chart to represent the data, because the data
+for teams is categorical and non- numerical. To get the 5 most frequent teams written about, I added a new column on a dataframe, 
+similar to ‘task2.csv’, with title ‘values’ and actual value of 1 for all rows. I then use the groupby() method to group the 
+dataframe based on ‘teams’ and used the count() method. The resulting process is recorded in a new dataframe, consisting of the 
+name of teams and the number of times an article is written about them. To get the top 5, I sorted the new dataframe based on their 
+values, descending, and used the head() method. The bar chart is then created using .plot.bar(). The results showed that the most 
+frequently written team is England, followed by Ireland, Wales, France, and Italy.
+
+For task 5, since we are comparing two numerical variables, I opted to use a scatter plot. The data does not need much processing 
+since I only need to join the value from the dataframe in task 4 and the average game difference, which is available in ‘task3.csv’. 
+The scatter plot is created using plt.scatter() and the best fit line is obtained using the polyfit() method with degree of 1 and 
+plotted simply using plt.plot. Using the .corr() method, I obtained a correlation of -0.2 and using hypothesis testing, I found that 
+the Pearson's is r(5) =-0.2, p = .747 at α = 0.5. A p-value of 0.747 shows that the data in task 5 is not significant to declare a 
+correlation as there is a 0.747 probability that the correlation is obtained by chance. But then again, 0.2 is not really that convincing 
+of a correlation. Therefore, from this data only, I accept the null hypothesis that there is no correlation between the two variables. 
+However, with more data, the results may differ.
+
+From this data alone, visually, I could see two outliers. If the data in the coordinates (2, 5) and (4, 30.5) is removed, we could obtain 
+a stronger correlation, though nothing conclusive at this stage. We need more data to either show that there is indeed a correlation if the 
+two outliers are removed, or to show that it is all a coincidence and there is in fact no correlation as shown by the hypothesis testing. 
+
+4. Appropriateness of ‘first name - score’ assumption
+Assuming that the first team mentioned and the highest score is related holds some degree of correctness in a sense that the team first 
+mentioned is likely to be whom the article is written about, and the largest score in the article would likely belong to the team whom 
+the article is written about. But the accuracy is not perfect, there would be some articles where this assumption does not hold. A solution 
+for a better, but still not perfect, accuracy, would be to assume that the team most mentioned in an article is the team whom the article is 
+written about. Associating it with the final match score would hold a higher degree of appropriateness.
+
+5. 2 Methods to determine match result
+A method to determine match result is by headline analysis. The headline is practically, the article summarised in one sentence. If we look 
+at some of the titles, “O'Gara revels in Ireland victory”, from this headline alone, I know that this article is written about Ireland and 
+Ireland won the match. Some other headlines where we could easily determine both main team and results as follows, ”Wales coach elated with 
+win”, “Ireland surge past Scots”. Some headline, the main team can be easily identified, but the match results need interpretation,”Wales make 
+two changes for France”, “Kirwan demands Italy consistency”. Some title however, has no team names, but match results could be interpreted, 
+“Jones happy with Henson heroics”, “Castaignede fires Laporte warning”. In the worst case, when an article is not talking about a match, the 
+the headline would most likely be uninterpretable, “Charvis set to lose fitness bid”, “Moore questions captaincy”. The advantage of this approach 
+is that, if accurate, this method could have a near perfect accuracy. However, to analyse the title this way, it would not be a monotonic task. 
+It would require sophisticated program, such as ML/NLP. Hence the disadvantage of this method is that the model needs to be sophisticated and not 
+all article will be written about a match or single match.
+
+Instead of just finding the largest match score in the article, which is in the format of (winning score)-(losing score), we could find words in 
+that sentence that signifies win or losses. Just a few phrase examples from the articles, “19-13 victory”, “beat France 24-18”, “17-17 draw”, 
+“19-13 Six Nations loss”. If we extract the score and a word describing the score such as victory, beat, draw, or loss, we could conclude the result 
+for the team in the article. For this, we would need a list of words which is considered describing such as the examples given. The advantage of this 
+is that it is common for articles to be worded this way and as such we could almost with certainty conclude the result of the match from this wording 
+system, the disadvantage is that we would need a complete list of words for this to efficiently work, and if by chance the article does not follow 
+this wording format, the program would count it as missing data.
+
+6. Other information and method
+If applicable, we could extract all the scores in an article by using the same regex pattern as in the code, and we can see the scores build-up of the 
+match. Theoretically, the articles should only include many scores to describe a match chronologically, or to mention a team’s performance in numerous 
+games. Therefore when we used re.findAll(), we should obtain a chronological list of scores representing the actual match (Or sometimes the final score 
+is first, because it is in the headline) or a list of a single team’s recent performance.
+
+To better understand the team performance, firstly we could analyse the final score to understand the team’s offensive and defensive position. Higher 
+for-scores indicates higher offensive qualities and vice versa, while higher against-scores indicates lower defensive qualities and vice versa. The use 
+of chronological match scores can be used to assess patterns in the game. Patterns that we can obtain for example, a team may often lose defensive 
+qualities after early lead, shown by early lead (i.e 4-0), followed by a turnover (i.e 6-10). These patterns may help the coach identify physical and 
+perhaps even psychological weaknesses of the team in question.
